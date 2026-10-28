@@ -1,1 +1,1 @@
-# mc-facecam
+a minecraft mod that allows users to create a live representation of their face using particles.
