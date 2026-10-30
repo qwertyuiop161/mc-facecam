@@ -11,11 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public record RecordPayload(List<Integer> pixels, int width, int height, int x, int y, int z) implements CustomPacketPayload {
-    public static final Identifier ID = MCFacecam.id("summon_camera");
+    public static final Identifier ID = MCFacecam.id("record_payload");
     public static final CustomPacketPayload.Type<RecordPayload> TYPE = new CustomPacketPayload.Type<>(ID);
 
     public static final StreamCodec<RegistryFriendlyByteBuf, RecordPayload> CODEC = StreamCodec.composite(
-        ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.VAR_INT, 1000000),
+        ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.VAR_INT, 32768),
         RecordPayload::pixels,
         ByteBufCodecs.VAR_INT, RecordPayload::width,
         ByteBufCodecs.VAR_INT, RecordPayload::height,

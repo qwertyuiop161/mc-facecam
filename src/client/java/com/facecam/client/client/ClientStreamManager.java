@@ -52,19 +52,19 @@ public class ClientStreamManager {
                 BufferedImage rawFrame = webcam.getImage();
                 if (rawFrame == null) return;
 
-                BufferedImage scaledImage = new BufferedImage(512, 512, BufferedImage.TYPE_INT_RGB);
+                BufferedImage scaledImage = new BufferedImage(128, 128, BufferedImage.TYPE_INT_RGB);
                 var g2d = scaledImage.createGraphics();
-                g2d.drawImage(rawFrame, 0, 0, 512, 512, null);
+                g2d.drawImage(rawFrame, 0, 0, 128, 128, null);
                 g2d.dispose();
 
-                List<Integer> pixels = new ArrayList<>(1000000);
+                List<Integer> pixels = new ArrayList<>(16384);
                 for (int py = 0; py < 128; py++) {
                     for (int px = 0; px < 128; px++) {
                         pixels.add(scaledImage.getRGB(px, py));
                     }
                 }
 
-                ClientPlayNetworking.send(new RecordPayload(pixels, 512, 512, targetX, targetY, targetZ));
+                ClientPlayNetworking.send(new RecordPayload(pixels, 128, 128, targetX, targetY, targetZ));
             } catch (Exception e) {
                 e.printStackTrace();
             }
