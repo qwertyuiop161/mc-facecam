@@ -29,34 +29,42 @@ public class MCFacecam implements ModInitializer {
 	public void onInitialize() {
 		PayloadTypeRegistry.clientboundPlay().register(StopCameraPayload.TYPE, StopCameraPayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(StartCameraPayload.TYPE, StartCameraPayload.CODEC);
-		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-			dispatcher.register(Commands.literal("livestream")
-					.then(Commands.literal("stop").executes(context -> {
-						ServerPlayer player = context.getSource().getPlayer();
-						if (player != null) {
-							ServerPlayNetworking.send(player, new StopCameraPayload());
-						}
-						context.getSource().sendSuccess(() -> Component.literal("Livestream stopped."), false);
-						return 1;
-					}))
-					.then(Commands.argument("x", IntegerArgumentType.integer())
-							.then(Commands.argument("y", IntegerArgumentType.integer())
-									.then(Commands.argument("z", IntegerArgumentType.integer())
-											.executes(context -> {
-												int x = IntegerArgumentType.getInteger(context, "x");
-												int y = IntegerArgumentType.getInteger(context, "y");
-												int z = IntegerArgumentType.getInteger(context, "z");
+			
+CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+    dispatcher.register(Commands.literal("livestream")
+        .then(Commands.literal("stop").executes(context -> {
+            ServerPlayer player = context.getSource().getPlayer();
+            if (player != null) {
+                ServerPlayNetworking.send(player, new StopCameraPayload());
+            }
+            context.getSource().sendSuccess(() -> Component.literal("Livestream stopped."), false);
+            return 1;
+        }))
+        .then(Commands.argument("x", IntegerArgumentType.integer())
+            .then(Commands.argument("y", IntegerArgumentType.integer())
+                .then(Commands.argument("z", IntegerArgumentType.integer())
+                    .then(Commands.argument("pixelX", IntegerArgumentType.integer(1, 512))
+                        .then(Commands.argument("pixelY", IntegerArgumentType.integer(1, 512))
+                            .then(Commands.argument("framerate", IntegerArgumentType.integer(1, 20))
+                                .executes(context -> {
+                                    int x = IntegerArgumentType.getInteger(context, "x");
+                                    int y = IntegerArgumentType.getInteger(context, "y");
+                                    int z = IntegerArgumentType.getInteger(context, "z");
+                                    int pixelX = IntegerArgumentType.getInteger(context, "pixelX");
+                                    int pixelY = IntegerArgumentType.getInteger(context, "pixelY");
+                                    int framerate = IntegerArgumentType.getInteger(context, "framerate");
 
-												ServerPlayer player = context.getSource().getPlayer();
-												if (player != null) {
-													ServerPlayNetworking.send(player, new StartCameraPayload(x, y, z));
-												}
-												context.getSource().sendSuccess(() -> Component.literal(
-														"Starting livestream at [" + x + ", " + y + ", " + z + "]"),
-														false);
-												return 1;
-											})))));
-		});
+                                    ServerPlayer player = context.getSource().getPlayer();
+                                    if (player != null) {
+                                        ServerPlayNetworking.send(player, new StartCameraPayload(x, y, z, pixelX, pixelY, framerate));
+                                    }
+                                    context.getSource().sendSuccess(() -> Component.literal(
+                                        "Starting livestream at [" + x + ", " + y + ", " + z + "] (" + pixelX + "x" + pixelY + " @ " + framerate + " FPS)"),
+                                        false);
+                                    return 1;
+                                }))))))));
+});
+
 		PayloadTypeRegistry.serverboundPlay().register(RecordPayload.TYPE, RecordPayload.CODEC);
 
 		ServerPlayNetworking.registerGlobalReceiver(RecordPayload.TYPE, (payload, context) -> {

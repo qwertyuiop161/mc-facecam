@@ -13,7 +13,14 @@ public class MCFacecamClient implements ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(StartCameraPayload.TYPE, (payload, context) -> {
             context.client().execute(() -> {
-                ClientStreamManager.startStreaming(payload.x(), payload.y(), payload.z());
+                ClientStreamManager.startStreaming(
+                    payload.x(),
+                    payload.y(),
+                    payload.z(),
+                    payload.pixelX(),
+                    payload.pixelY(),
+                    payload.framerate()
+                );
             });
         });
 
